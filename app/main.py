@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="API de Productos",
     description="Una API RESTful para gestionar productos",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 app.add_middleware(
@@ -23,13 +23,16 @@ app.add_middleware(
 
 repo = ProductoRepo()
 
+
 @app.get("/")
 def read_root():
     return {"message": "Bienvenido a la API de Productos"}
 
+
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
+
 
 @app.get("/productos", response_model=list[Producto])
 def listar_productos():
@@ -41,8 +44,9 @@ def listar_productos():
         logger.error(f"Error al listar productos: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error interno del servidor"
+            detail="Error interno del servidor",
         )
+
 
 @app.post("/productos", response_model=Producto, status_code=status.HTTP_201_CREATED)
 def crear_producto(data: ProductoCreate):
@@ -54,8 +58,9 @@ def crear_producto(data: ProductoCreate):
         logger.error(f"Error al crear producto: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error interno del servidor"
+            detail="Error interno del servidor",
         )
+
 
 @app.get("/productos/{prod_id}", response_model=Producto)
 def obtener_producto(prod_id: int):
@@ -63,10 +68,10 @@ def obtener_producto(prod_id: int):
     if not producto:
         logger.warning(f"Producto no encontrado: ID {prod_id}")
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Producto no encontrado"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado"
         )
     return producto
+
 
 @app.put("/productos/{prod_id}", response_model=Producto)
 def actualizar_producto(prod_id: int, data: ProductoUpdate):
@@ -74,11 +79,11 @@ def actualizar_producto(prod_id: int, data: ProductoUpdate):
     if not producto_actualizado:
         logger.warning(f"Producto no encontrado para actualizar: ID {prod_id}")
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Producto no encontrado"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado"
         )
     logger.info(f"Producto actualizado: {producto_actualizado}")
     return producto_actualizado
+
 
 @app.delete("/productos/{prod_id}", status_code=status.HTTP_200_OK)
 def eliminar_producto(prod_id: int):
@@ -86,14 +91,13 @@ def eliminar_producto(prod_id: int):
     if not producto:
         logger.warning(f"Producto no encontrado para eliminar: ID {prod_id}")
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Producto no encontrado"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado"
         )
-    
+
     repo.eliminar(prod_id)
     logger.info(f"Producto eliminado: ID {prod_id}")
     return {
         "status": "ok",
         "message": f"Producto {prod_id} eliminado correctamente",
-        "id_eliminado": prod_id
+        "id_eliminado": prod_id,
     }
